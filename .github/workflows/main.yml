@@ -45,3 +45,13 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+            
+      - name: Run container and test endpoint
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker run -d -p 5000:5000 --name test-container ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          sleep 5  # wait for container to boot
+          curl -f http://localhost:5000/ || (docker logs test-container && exit 1)
+          docker stop test-container
+          docker rm test-container
