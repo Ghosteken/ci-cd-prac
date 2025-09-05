@@ -19,5 +19,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
+EXPOSE 5000
 # Run the Flask app
 CMD ["python", "app.py"]
