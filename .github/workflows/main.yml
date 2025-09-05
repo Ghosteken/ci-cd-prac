@@ -46,7 +46,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-            
+
       - name: Run container and test endpoint
         run: |
           docker pull ${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -55,3 +55,21 @@ jobs:
           curl -f http://localhost:5000/ || (docker logs test-container && exit 1)
           docker stop test-container
           docker rm test-container
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/flask-hello:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/flask-hello:${{ github.sha }}
+        
